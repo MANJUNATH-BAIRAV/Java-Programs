@@ -38,6 +38,7 @@ calculate cal = new calculate(n1,n2);
 cal.disply();
 System.out.println("The sum is : "+cal.math());
 System.out.println("The product is : "+cal.math(2));
+System.out.println("Github");
 }
 }
 
