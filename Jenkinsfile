@@ -1,43 +1,77 @@
 pipeline {
-    agent any  // Runs on any available agent
-
+    agent any
+    
     environment {
-        IMAGE_NAME = "my-java-app"
-        DOCKER_REGISTRY = "your-dockerhub-username"  // Change this to your actual DockerHub username
+        MAVEN_HOME = "C:\\Program Files\\Apache\\maven" // Adjust the path as per your system
+        PATH = "${MAVEN_HOME}\\bin;${env.PATH}"
     }
-
+    
     stages {
-        stage('Checkout Code') {
+        stage('Clone Repository') {
             steps {
-                git branch: 'main', credentialsId: 'github-credentials', url: 'https://github.com/MANJUNATH-BAIRAV/Java-Programs.git'
-            }
-        }
-
-        stage('Build with Maven') {
-            steps {
-                sh './mvnw clean package'  // Uses Maven Wrapper if available
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t $IMAGE_NAME .'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh 'java -jar target/*.jar || echo "Tests failed, but continuing..."'
-            }
-        }
-
-        stage('Push to DockerHub') {
-            steps {
-                withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
-                    sh 'docker tag $IMAGE_NAME $DOCKER_REGISTRY/$IMAGE_NAME:latest'
-                    sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME:latest'
+                script {
+                    try {
+                        git 'https://github.com/your-repo/square-root-java-app.git' // Replace with your repo
+                    } catch (Exception e) {
+                        echo "Error cloning repository: ${e.getMessage()}"
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    }
                 }
             }
+        }
+        
+        stage('Build with Maven') {
+            steps {
+                script {
+                    try {
+                        bat 'mvn clean package'
+                    } catch (Exception e) {
+                        echo "Build failed: ${e.getMessage()}"
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    }
+                }
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                script {
+                    try {
+                        bat 'mvn test'
+                    } catch (Exception e) {
+                        echo "Tests failed: ${e.getMessage()}"
+                        currentBuild.result = 'UNSTABLE'
+                        throw e
+                    }
+                }
+            }
+        }
+        
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    try {
+                        bat 'docker build -t your-docker-image .'
+                        bat 'docker tag your-docker-image your-dockerhub-account/your-docker-image:latest'
+                        bat 'docker push your-dockerhub-account/your-docker-image:latest'
+                    } catch (Exception e) {
+                        echo "Docker build/push failed: ${e.getMessage()}"
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        failure {
+            echo 'Pipeline failed! Please check the logs.'
+        }
+        success {
+            echo 'Pipeline executed successfully!'
         }
     }
 }
