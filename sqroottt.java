@@ -1,5 +1,5 @@
 import java.lang.Math;
-class sqroot
+class sqroottt
  {
   public static void main(String args[])
    { 
