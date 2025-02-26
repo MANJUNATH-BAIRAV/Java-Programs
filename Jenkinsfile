@@ -29,14 +29,14 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    // Get the JAR file name safely
-                    def jarFile = bat(script: 'for /f "tokens=*" %F in (\'dir /b target\\*.jar\') do @echo %F', returnStdout: true).trim()
+                    // Get the JAR file name safely without errors
+                    def jarFile = bat(script: '@for /f "delims=" %F in (\'dir /b target\\*.jar\') do @echo %F', returnStdout: true).trim()
 
                     if (jarFile.isEmpty()) {
                         error("❌ JAR file not found in target/ directory!")
                     }
 
-                    // Make sure backslashes are escaped
+                    // Convert Windows-style path to UNIX-style for Docker
                     jarFile = jarFile.replace("\\", "/")
 
                     bat "docker build -t %DOCKER_IMAGE%:latest --build-arg JAR_FILE=${jarFile} ."
