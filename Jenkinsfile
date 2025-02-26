@@ -11,7 +11,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        git 'https://github.com/your-repo/square-root-java-app.git' // Replace with your repo
+                        git 'https://github.com/MANJUNATH-BAIRAV/Java-Programs' // Replace with your repo
                     } catch (Exception e) {
                         echo "Error cloning repository: ${e.getMessage()}"
                         currentBuild.result = 'FAILURE'
