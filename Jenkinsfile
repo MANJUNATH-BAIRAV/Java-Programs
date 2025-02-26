@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'mvn clean package'
+                        bat 'mvn clean package'
                     } catch (Exception e) {
                         echo "Maven build failed: ${e.getMessage()}"
                         error("Stopping pipeline due to build failure.")
