@@ -4,14 +4,15 @@ pipeline {
         REPO_URL = 'https://github.com/MANJUNATH-BAIRAV/Java-Programs'
         BRANCH_NAME = 'main'
         DOCKER_IMAGE = 'manjunathbairav/java-app'
+        DOCKER_USER = credentials('docker-username')  // Use Jenkins credentials
+        DOCKER_PASS = credentials('docker-password')
     }
     stages {
         stage('Clone Repository') {
             steps {
                 script {
                     try {
-                        checkout scm
-                        git branch: "${BRANCH_NAME}", url: "${REPO_URL}"
+                        git branch: BRANCH_NAME, url: REPO_URL
                     } catch (Exception e) {
                         echo "Error cloning repository: ${e.getMessage()}"
                         error("Stopping pipeline due to clone failure.")
@@ -37,7 +38,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'mvn test'
+                        bat 'mvn test'
                     } catch (Exception e) {
                         echo "Tests failed: ${e.getMessage()}"
                         error("Stopping pipeline due to test failure.")
@@ -50,11 +51,9 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh """
-                        docker build -t ${DOCKER_IMAGE}:latest .
-                        docker login -u YOUR_DOCKER_USERNAME -p YOUR_DOCKER_PASSWORD
-                        docker push ${DOCKER_IMAGE}:latest
-                        """
+                        bat "docker build -t %DOCKER_IMAGE%:latest ."
+                        bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
+                        bat "docker push %DOCKER_IMAGE%:latest"
                     } catch (Exception e) {
                         echo "Docker build or push failed: ${e.getMessage()}"
                         error("Stopping pipeline due to Docker failure.")
