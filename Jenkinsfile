@@ -17,12 +17,7 @@ pipeline {
         stage('Build with Maven') {
             steps {
                 bat 'mvn clean package'
-            }
-        }
-
-        stage('Verify JAR') {
-            steps {
-                bat 'dir target'
+                bat 'dir target'  // Ensure the JAR is generated
             }
         }
 
@@ -34,9 +29,15 @@ pipeline {
 
         stage('Docker Build & Push') {
             steps {
-                bat "docker build -t %DOCKER_IMAGE%:latest ."
-                bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
-                bat "docker push %DOCKER_IMAGE%:latest"
+                script {
+                    def jarFile = bat(script: 'for /f "delims=" %F in (\'dir /b target\\*.jar\') do @echo %F', returnStdout: true).trim()
+                    if (jarFile.isEmpty()) {
+                        error("JAR file not found in target/ directory!")
+                    }
+                    bat "docker build -t %DOCKER_IMAGE%:latest --build-arg JAR_FILE=${jarFile} ."
+                    bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
+                    bat "docker push %DOCKER_IMAGE%:latest"
+                }
             }
         }
     }
