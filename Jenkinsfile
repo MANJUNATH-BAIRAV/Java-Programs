@@ -4,61 +4,33 @@ pipeline {
         REPO_URL = 'https://github.com/MANJUNATH-BAIRAV/Java-Programs'
         BRANCH_NAME = 'main'
         DOCKER_IMAGE = 'manjunathbairav/java-app'
-        DOCKER_USER = credentials('docker-username')  // Use Jenkins credentials
-        DOCKER_PASS = credentials('docker-password')
+        DOCKER_USER = 'manjunathbairav1'
+        DOCKER_PASS = 'Vasco@123'
     }
     stages {
         stage('Clone Repository') {
             steps {
-                script {
-                    try {
-                        git branch: BRANCH_NAME, url: REPO_URL
-                    } catch (Exception e) {
-                        echo "Error cloning repository: ${e.getMessage()}"
-                        error("Stopping pipeline due to clone failure.")
-                    }
-                }
+                git branch: BRANCH_NAME, url: REPO_URL
             }
         }
 
         stage('Build with Maven') {
             steps {
-                script {
-                    try {
-                        bat 'mvn clean package'
-                    } catch (Exception e) {
-                        echo "Maven build failed: ${e.getMessage()}"
-                        error("Stopping pipeline due to build failure.")
-                    }
-                }
+                bat 'mvn clean package'
             }
         }
 
         stage('Run Tests') {
             steps {
-                script {
-                    try {
-                        bat 'mvn test'
-                    } catch (Exception e) {
-                        echo "Tests failed: ${e.getMessage()}"
-                        error("Stopping pipeline due to test failure.")
-                    }
-                }
+                bat 'mvn test'
             }
         }
 
         stage('Docker Build & Push') {
             steps {
-                script {
-                    try {
-                        bat "docker build -t %DOCKER_IMAGE%:latest ."
-                        bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
-                        bat "docker push %DOCKER_IMAGE%:latest"
-                    } catch (Exception e) {
-                        echo "Docker build or push failed: ${e.getMessage()}"
-                        error("Stopping pipeline due to Docker failure.")
-                    }
-                }
+                bat "docker build -t %DOCKER_IMAGE%:latest ."
+                bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
+                bat "docker push %DOCKER_IMAGE%:latest"
             }
         }
     }
