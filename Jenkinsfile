@@ -1,77 +1,75 @@
 pipeline {
     agent any
-    
     environment {
-        MAVEN_HOME = "C:\\Program Files\\Apache\\maven" // Adjust the path as per your system
-        PATH = "${MAVEN_HOME}\\bin;${env.PATH}"
+        REPO_URL = 'https://github.com/MANJUNATH-BAIRAV/Java-Programs'
+        BRANCH_NAME = 'main'
+        DOCKER_IMAGE = 'manjunathbairav/java-app'
     }
-    
     stages {
         stage('Clone Repository') {
             steps {
                 script {
                     try {
-                        git 'https://github.com/MANJUNATH-BAIRAV/Java-Programs' // Replace with your repo
+                        checkout scm
+                        git branch: "${BRANCH_NAME}", url: "${REPO_URL}"
                     } catch (Exception e) {
                         echo "Error cloning repository: ${e.getMessage()}"
-                        currentBuild.result = 'FAILURE'
-                        throw e
+                        error("Stopping pipeline due to clone failure.")
                     }
                 }
             }
         }
-        
+
         stage('Build with Maven') {
             steps {
                 script {
                     try {
-                        bat 'mvn clean package'
+                        sh 'mvn clean package'
                     } catch (Exception e) {
-                        echo "Build failed: ${e.getMessage()}"
-                        currentBuild.result = 'FAILURE'
-                        throw e
+                        echo "Maven build failed: ${e.getMessage()}"
+                        error("Stopping pipeline due to build failure.")
                     }
                 }
             }
         }
-        
+
         stage('Run Tests') {
             steps {
                 script {
                     try {
-                        bat 'mvn test'
+                        sh 'mvn test'
                     } catch (Exception e) {
                         echo "Tests failed: ${e.getMessage()}"
-                        currentBuild.result = 'UNSTABLE'
-                        throw e
+                        error("Stopping pipeline due to test failure.")
                     }
                 }
             }
         }
-        
+
         stage('Docker Build & Push') {
             steps {
                 script {
                     try {
-                        bat 'docker build -t your-docker-image .'
-                        bat 'docker tag your-docker-image your-dockerhub-account/your-docker-image:latest'
-                        bat 'docker push your-dockerhub-account/your-docker-image:latest'
+                        sh """
+                        docker build -t ${DOCKER_IMAGE}:latest .
+                        docker login -u YOUR_DOCKER_USERNAME -p YOUR_DOCKER_PASSWORD
+                        docker push ${DOCKER_IMAGE}:latest
+                        """
                     } catch (Exception e) {
-                        echo "Docker build/push failed: ${e.getMessage()}"
-                        currentBuild.result = 'FAILURE'
-                        throw e
+                        echo "Docker build or push failed: ${e.getMessage()}"
+                        error("Stopping pipeline due to Docker failure.")
                     }
                 }
             }
         }
     }
-    
+
     post {
         failure {
-            echo 'Pipeline failed! Please check the logs.'
+            echo "Pipeline failed! Please check the logs."
         }
         success {
-            echo 'Pipeline executed successfully!'
+            echo "Pipeline completed successfully!"
         }
     }
 }
