@@ -20,6 +20,12 @@ pipeline {
             }
         }
 
+        stage('Verify JAR') {
+            steps {
+                bat 'dir target'
+            }
+        }
+
         stage('Run Tests') {
             steps {
                 bat 'mvn test'
