@@ -9,7 +9,7 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- JUnit Dependency -->
+        <!-- JUnit Dependency for Testing -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -20,7 +20,7 @@
 
     <build>
         <plugins>
-            <!-- Compiler Plugin -->
+            <!-- Compiler Plugin (Java 8 Compatibility) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -31,7 +31,7 @@
                 </configuration>
             </plugin>
 
-            <!-- JAR Plugin (Ensure Correct Main Class) -->
+            <!-- JAR Plugin (Ensures Correct Execution) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -45,7 +45,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Surefire Plugin (Ensure Tests Run) -->
+            <!-- Surefire Plugin (Runs JUnit Tests) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
