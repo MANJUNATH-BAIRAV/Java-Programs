@@ -9,11 +9,18 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- Add dependencies here -->
+        <!-- JUnit Dependency -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -24,6 +31,7 @@
                 </configuration>
             </plugin>
 
+            <!-- JAR Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -31,10 +39,17 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.manjunath.Main</mainClass>  <!-- Change this to your main class -->
+                            <mainClass>com.manjunath.sqroot</mainClass>  
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+
+            <!-- Surefire Plugin (Runs JUnit Tests) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M7</version>
             </plugin>
         </plugins>
     </build>
