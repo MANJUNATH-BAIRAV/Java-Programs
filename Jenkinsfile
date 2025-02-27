@@ -5,7 +5,7 @@ pipeline {
         BRANCH_NAME = 'main'
         DOCKER_IMAGE = 'manjunathbairav/java-app'
         DOCKER_USER = 'manjunathbairav1'
-        DOCKER_PASS = 'Vasco@123'
+        DOCKER_PASS = 'Vasco@123'  // Store this as Jenkins credentials instead!
     }
     stages {
         stage('Clone Repository') {
@@ -29,16 +29,18 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    def jarFile = bat(script: 'for /f "delims=" %F in (\'dir /b target\\*.jar\') do @echo %F', returnStdout: true).trim()
-                    
+                    // Find the JAR file correctly
+                    def jarFile = bat(script: 'dir /b target\\*.jar', returnStdout: true).trim()
+
                     if (!jarFile || jarFile.isEmpty()) {
                         error("❌ JAR file not found in target/ directory!")
                     }
 
                     echo "✅ Found JAR file: ${jarFile}"
 
-                    bat "docker build -t %DOCKER_IMAGE%:latest ."
-                    bat "docker login -u %DOCKER_USER% -p %DOCKER_PASS%"
+                    // Docker commands
+                    bat "docker build -t %DOCKER_IMAGE%:latest --build-arg JAR_FILE=${jarFile} ."
+                    bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
                     bat "docker push %DOCKER_IMAGE%:latest"
                 }
             }
@@ -47,10 +49,10 @@ pipeline {
 
     post {
         failure {
-            echo "Pipeline failed! Please check the logs."
+            echo "🚨 Pipeline failed! Check the logs for errors."
         }
         success {
-            echo "Pipeline completed successfully!"
+            echo "✅ Pipeline completed successfully!"
         }
     }
 }
