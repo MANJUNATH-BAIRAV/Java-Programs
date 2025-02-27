@@ -29,18 +29,16 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    // Corrected for Windows batch scripting
                     def jarFile = bat(script: 'for /f "delims=" %F in (\'dir /b target\\*.jar\') do @echo %F', returnStdout: true).trim()
-
+                    
                     if (!jarFile || jarFile.isEmpty()) {
                         error("❌ JAR file not found in target/ directory!")
                     }
 
                     echo "✅ Found JAR file: ${jarFile}"
 
-                    // Docker commands
-                    bat "docker build -t %DOCKER_IMAGE%:latest --build-arg JAR_FILE=${jarFile} ."
-                    bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
+                    bat "docker build -t %DOCKER_IMAGE%:latest ."
+                    bat "docker login -u %DOCKER_USER% -p %DOCKER_PASS%"
                     bat "docker push %DOCKER_IMAGE%:latest"
                 }
             }
