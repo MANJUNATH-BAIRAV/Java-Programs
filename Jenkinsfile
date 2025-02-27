@@ -5,8 +5,8 @@ pipeline {
         BRANCH_NAME = 'main'
         DOCKER_IMAGE = 'manjunathbairav/java-app'
         DOCKER_USER = 'manjunathbairav1'
-        DOCKER_PASS = 'Vasco@123'  // Store this as Jenkins credentials instead!
     }
+    
     stages {
         stage('Clone Repository') {
             steps {
@@ -38,10 +38,17 @@ pipeline {
 
                     echo "✅ Found JAR file: ${jarFile}"
 
-                    // Correct the Docker build command
-                    bat "docker build -t %DOCKER_IMAGE%:latest --build-arg JAR_FILE=target/${jarFile} ."
-                    bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
-                    bat "docker push %DOCKER_IMAGE%:latest"
+                    // Retrieve Docker password securely
+                    withCredentials([string(credentialsId: 'docker-hub-password', variable: 'DOCKER_PASS')]) {
+                        // Build the Docker image
+                        bat "docker build -t %DOCKER_IMAGE%:latest --build-arg JAR_FILE=target/${jarFile} ."
+                        
+                        // Log in to Docker Hub securely
+                        bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
+                        
+                        // Push the Docker image
+                        bat "docker push %DOCKER_IMAGE%:latest"
+                    }
                 }
             }
         }
