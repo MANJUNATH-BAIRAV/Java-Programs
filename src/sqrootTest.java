@@ -1,7 +1,9 @@
+package com.manjunath;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class sqrootTest {  // ← Renamed to match your main class
+public class SqrootTest {  
     @Test
     public void testSqrt() {
         assertEquals(2.0, Math.sqrt(4), 0.001);
