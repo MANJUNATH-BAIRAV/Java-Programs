@@ -4,9 +4,9 @@ pipeline {
         REPO_URL = 'https://github.com/MANJUNATH-BAIRAV/Java-Programs'
         BRANCH_NAME = 'main'
         DOCKER_IMAGE = 'manjunathbairav/java-app'
-        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'  // Replace with actual Jenkins credentials ID
+        DOCKER_USER = 'manjunathbairav1'
+        DOCKER_PASS = 'Vasco@123'  // Store this as Jenkins credentials instead!
     }
-    
     stages {
         stage('Clone Repository') {
             steps {
@@ -29,7 +29,7 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    // Detect the JAR file dynamically
+                    // Find the JAR file correctly
                     def jarFile = bat(script: 'dir /b target\\*.jar', returnStdout: true).trim()
 
                     if (!jarFile || jarFile.isEmpty()) {
@@ -38,11 +38,10 @@ pipeline {
 
                     echo "✅ Found JAR file: ${jarFile}"
 
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        bat "docker login -u %DOCKER_USER% -p %DOCKER_PASS%"
-                        bat "docker build -t %DOCKER_IMAGE%:latest --build-arg JAR_FILE=target/${jarFile} ."
-                        bat "docker push %DOCKER_IMAGE%:latest"
-                    }
+                    // Correct the Docker build command
+                    bat "docker build -t %DOCKER_IMAGE%:latest --build-arg JAR_FILE=target/${jarFile} ."
+                    bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
+                    bat "docker push %DOCKER_IMAGE%:latest"
                 }
             }
         }
