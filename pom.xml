@@ -31,7 +31,7 @@
                 </configuration>
             </plugin>
 
-            <!-- JAR Plugin -->
+            <!-- JAR Plugin (Ensure Correct Main Class) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -39,17 +39,22 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.manjunath.sqroot.Main</mainClass>  
+                            <mainClass>com.manjunath.SqRoot</mainClass>  
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
 
-            <!-- Surefire Plugin (Runs JUnit Tests) -->
+            <!-- Surefire Plugin (Ensure Tests Run) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M7</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
