@@ -39,7 +39,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.manjunath.sqroot</mainClass>  
+                            <mainClass>com.manjunath.sqroot.Main</mainClass>  
                         </manifest>
                     </archive>
                 </configuration>
